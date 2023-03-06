@@ -62,6 +62,7 @@ elif page == "Données des vols":
         day = st.sidebar.selectbox("Selectionnez un jour", data_dictio.keys())
         type_r.show_type_repartition(data_dictio[day])
     elif (choice == "Classification selon le bruit"):
+        #unzip file all_data_toulouse.zip in the folder Data
         data_b = pd.read_csv("data/all_data_toulouse.csv")
         b.run_app(data_b)
     elif (choice == "Trajectoire d'avion"):
