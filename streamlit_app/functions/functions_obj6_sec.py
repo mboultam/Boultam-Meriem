@@ -13,7 +13,7 @@ def jetprive(data_atterrissage):
     list_id = []
     nb_jets = 0
     for i in range(len(list_jet)) :
-        if (list_jet[i].__contains__('Jet2') or list_jet[i].__contains__('Private') and (data_atterrissage['Flight_ID'][i] not in list_id)) : 
+        if (list_jet[i].__contains__('Private') and (data_atterrissage['Flight_ID'][i] not in list_id)) : 
             nb_jets += 1
             list_id.append(data_atterrissage['Flight_ID'][i])
     
