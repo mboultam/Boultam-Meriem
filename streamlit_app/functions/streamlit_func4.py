@@ -22,20 +22,49 @@ def classification_type(data,ind,facteur):
     # Assign each label to a color based on its rank (i.e., the label with the highest mean value gets the first color, etc.)
     mean_values = grouped_data.groupby(labels)[ind].mean().sort_values()
     color_map = {label: colors[i] for i, label in enumerate(mean_values.index)}
+    grouped_data = grouped_data.sort_values(by=facteur)
 
     # Plot the results with bar color based on the cluster label
     fig, ax = plt.subplots(figsize=(8, 6))
     for i, label in enumerate(labels):
         color = color_map[label]
         ax.bar(grouped_data[facteur][i], grouped_data[ind][i], color=color)
-    legend_handles = [plt.scatter([], [], marker='o', s=50, c=color, label=f'Cluster {label+1}') 
-                      for label, color in color_map.items()]
+    cluster_labels = ['Low ', 'Medium ', 'High ']
+
+    legend_handles = [plt.scatter([], [], marker='o', s=50, c=color, label=label)
+                 for label, color in zip(cluster_labels, colors)]
     ax.legend(handles=legend_handles)
     ax.set_xlabel(facteur)
     ax.set_ylabel('Moyenne '+ind)
     ax.set_title('Classification selon '+ind)
     plt.show()
     st.pyplot(fig)
+
+# Group ages into categories
+def group_age(age):
+    if age <5:
+        return 'moins de 5 ans'
+    elif age >= 5 and age <15:
+        return 'entre 5 et 15 ans'
+    elif age >= 15 and age <= 30:
+        return 'entre 15 et 30 ans'
+    elif age > 30:
+        return 'plus de 30 ans'
+    else :
+        print(age)
+
+# Group number of passengers into categories
+def group_passengers(num_passengers):
+    if num_passengers <100:
+        return '< 100'
+    elif num_passengers >= 100 and num_passengers <150:
+        return '> 100'
+    elif num_passengers >= 150 and num_passengers <= 200:
+        return '> 150'
+    elif num_passengers > 200:
+        return '> 200'
+
+
 
 def boxplot_emission(df3,i):
     df3['type_avion'] = df3['type_avion'].apply(str.upper)
@@ -89,14 +118,17 @@ def app(choice_ind) :
         st.title("classifictation de la consommation de carburant par age d'avion")
         df_age = data_consommation.filter(items = ['age_avion','consommation_carburant'] )
         df_age.dropna(subset=['age_avion'], inplace=True) 
-        masque = df_age['age_avion'] == 0000  
-        df_age = df_age.drop(df_age[masque].index)
-        classification_type(df_age, 'consommation_carburant', 'age_avion')
+        df_age['age_avion'] = 2023 - df_age['age_avion']
+        df_age['age_group'] = df_age['age_avion'].apply(group_age)
+        cat_order = ['moins de 5 ans', 'entre 5 et 15 ans', 'entre 15 et 30 ans', 'plus de 30 ans']
+        df_age['age_group'] = pd.Categorical(df_age['age_group'], categories=cat_order)
+        classification_type(df_age, 'consommation_carburant', 'age_group')
         #passagers
         st.title("classifictation de la consommation de carburant par nombre de passagers")
         df_passagers = data_consommation.filter(items = ['nombre_passagers','consommation_carburant'] )
-        df_passagers.dropna(subset=['nombre_passagers'], inplace=True)   
-        classification_type(df_passagers, 'consommation_carburant', 'nombre_passagers')
+        df_passagers.dropna(subset=['nombre_passagers'], inplace=True)  
+        df_passagers['passenger_group'] = df_passagers['nombre_passagers'].apply(group_passengers) 
+        classification_type(df_passagers, 'consommation_carburant', 'passenger_group')
         
         
 
